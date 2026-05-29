@@ -1,7 +1,8 @@
 package com.openclassrooms.rentals.service;
 
-import com.openclassrooms.rentals.dto.AuthRequest;
 import com.openclassrooms.rentals.dto.AuthResponse;
+import com.openclassrooms.rentals.dto.LoginRequest;
+import com.openclassrooms.rentals.dto.RegisterRequest;
 import com.openclassrooms.rentals.dto.UserResponse;
 import com.openclassrooms.rentals.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,15 +21,19 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public AuthResponse register(AuthRequest request) {
+    public AuthResponse register(RegisterRequest request) {
         return null;
     }
 
-    public AuthResponse login(AuthRequest request) {
+    public AuthResponse login(LoginRequest request) {
         return null;
     }
 
     public UserResponse getCurrentUser(String email) {
+        return null;
+    }
+
+    public UserResponse getUserById(Long id) {
         return null;
     }
 }

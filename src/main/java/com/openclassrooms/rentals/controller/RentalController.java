@@ -42,7 +42,7 @@ public class RentalController {
         return null;
     }
 
-    @PutMapping(value = "/{id}", consumes = MULTIPART_FORM_DATA_VALUE)
+    @PutMapping("/{id}")
     public ResponseEntity<MessageResponse> updateRental(
             @PathVariable Long id,
             @RequestParam String name,

@@ -5,6 +5,7 @@ import com.openclassrooms.rentals.dto.MessageResponse;
 import com.openclassrooms.rentals.service.MessageService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,7 +19,9 @@ public class MessageController {
     }
 
     @PostMapping
-    public ResponseEntity<MessageResponse> sendMessage(@Valid @RequestBody MessageRequest request) {
-        return null;
+    public ResponseEntity<MessageResponse> sendMessage(
+            @Valid @RequestBody MessageRequest request,
+            Authentication authentication) {
+        return ResponseEntity.ok(messageService.sendMessage(request, authentication.getName()));
     }
 }

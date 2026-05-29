@@ -20,7 +20,7 @@ public class MessageService {
         this.rentalRepository = rentalRepository;
     }
 
-    public MessageResponse sendMessage(MessageRequest request) {
+    public MessageResponse sendMessage(MessageRequest request, String userEmail) {
         return null;
     }
 }

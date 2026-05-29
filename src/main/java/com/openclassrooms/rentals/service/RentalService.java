@@ -4,6 +4,7 @@ import com.openclassrooms.rentals.dto.MessageResponse;
 import com.openclassrooms.rentals.dto.RentalResponse;
 import com.openclassrooms.rentals.dto.RentalsResponse;
 import com.openclassrooms.rentals.repository.RentalRepository;
+import com.openclassrooms.rentals.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,9 +12,11 @@ import org.springframework.web.multipart.MultipartFile;
 public class RentalService {
 
     private final RentalRepository rentalRepository;
+    private final UserRepository userRepository;
 
-    public RentalService(RentalRepository rentalRepository) {
+    public RentalService(RentalRepository rentalRepository, UserRepository userRepository) {
         this.rentalRepository = rentalRepository;
+        this.userRepository = userRepository;
     }
 
     public RentalsResponse getAllRentals() {

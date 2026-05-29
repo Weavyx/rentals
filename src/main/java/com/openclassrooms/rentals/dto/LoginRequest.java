@@ -1,7 +1,7 @@
 package com.openclassrooms.rentals.dto;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,11 +9,12 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MessageRequest {
-
-    @NotNull
-    private Long rentalId;
+public class LoginRequest {
 
     @NotBlank
-    private String message;
+    @Email
+    private String email;
+
+    @NotBlank
+    private String password;
 }
