@@ -20,18 +20,27 @@ public class AuthController {
         this.authService = authService;
     }
 
+    /**
+     * Crée un nouveau compte et retourne un token JWT.
+     */
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
-        return null;
+        return ResponseEntity.ok(authService.register(request));
     }
 
+    /**
+     * Authentifie un utilisateur et retourne un token JWT.
+     */
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-        return null;
+        return ResponseEntity.ok(authService.login(request));
     }
 
+    /**
+     * Retourne le profil de l'utilisateur authentifié.
+     */
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getCurrentUser(Authentication authentication) {
-        return null;
+        return ResponseEntity.ok(authService.getCurrentUser(authentication.getName()));
     }
 }
