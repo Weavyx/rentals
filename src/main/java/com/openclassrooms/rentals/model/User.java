@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.Instant;
 import java.util.Collection;
-import java.util.List;-
+import java.util.List;
 
 /**
  * Entité JPA mappée sur la table {@code users} en base de données.
@@ -36,6 +36,7 @@ public class User implements UserDetails {
     private Long id;
 
     private String name;
+    @Column(unique = true)
     private String email;
 
     // Le mot de passe stocké ici est toujours un hash BCrypt, jamais le mot de passe en clair.
