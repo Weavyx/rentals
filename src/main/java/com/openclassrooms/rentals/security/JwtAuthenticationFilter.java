@@ -15,6 +15,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+/**
+ * Filtre de sécurité qui intercepte chaque requête HTTP avant qu'elle n'atteigne un contrôleur.
+ */
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
@@ -25,6 +28,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.userDetailsService = userDetailsService;
     }
 
+    /**
+     * Lit le header Authorization, valide le token JWT, et enregistre l'utilisateur authentifié
+     * dans le contexte de sécurité si le token est valide.
+     *
+     * @param request     la requête HTTP entrante
+     * @param response    la réponse HTTP
+     * @param filterChain la chaîne de filtres
+     * @throws ServletException en cas d'erreur de traitement servlet
+     * @throws IOException      en cas d'erreur d'I/O
+     */
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
@@ -43,13 +56,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String email = jwtService.extractEmail(token);
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+
             UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+
             if (jwtService.isTokenValid(token, userDetails)) {
+
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails, null, userDetails.getAuthorities()
                         );
+
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
