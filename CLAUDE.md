@@ -43,22 +43,77 @@ The Docker Compose file starts a MySQL 8.0 instance and auto-runs `src/main/reso
 
 ## Architecture
 
-This is a Spring Boot REST API (Java 17, Spring Boot 4.x) for managing property rentals. The application uses Spring Data JPA + MySQL, Spring Security with JWT authentication, and supports multipart file uploads for rental property images.
+Spring Boot REST API (Java 17) for managing property rentals. Stack: Spring Data JPA + MySQL, Spring Security + JWT, multipart file uploads.
 
-**Domain model (three entities):**
+### Package layout
 
-- **User** — accounts for both owners and renters; owns rentals
-- **Rental** — property listing with image, surface, price, description; belongs to a user (owner)
-- **Message** — communication tied to a rental and a user
+```
+com.openclassrooms.rentals/
+├── controller/     @RestController — one class per entity, no business logic
+├── service/        business logic, JWT, file storage
+├── repository/     JpaRepository interfaces only
+├── model/          JPA @Entity classes (User, Rental, Message)
+├── dto/            request/response payloads, never expose entities directly
+├── security/       SecurityConfig, JwtAuthenticationFilter
+└── exception/      GlobalExceptionHandler (@RestControllerAdvice)
+```
 
-**Typical Spring layering expected:**
-- `controller/` — `@RestController` classes, one per entity
-- `service/` — business logic, JWT token handling, file storage
-- `repository/` — `@Repository` / `JpaRepository` interfaces
-- `model/` (or `entity/`) — JPA `@Entity` classes
-- `dto/` — request/response payloads (separate from entities)
-- `security/` — Spring Security config, JWT filter, `UserDetailsService`
+### Domain model
 
-**Authentication flow:** JWT tokens issued on login/register; secured endpoints require a `Bearer` token in the `Authorization` header. The secret is read from the `JWT_SECRET` environment variable.
+- **User** — owner/renter account; implements `UserDetails` (Spring Security); email is the unique identifier
+- **Rental** — property listing (name, surface, price, picture URL, description); belongs to a User via `@ManyToOne owner`
+- **Message** — message sent about a rental; linked to both a Rental and a User
 
-**File uploads:** Rental pictures are stored on disk under `UPLOAD_DIR` and served as static resources; the stored path/URL is persisted on the `Rental` entity.
+### API routes
+
+**Auth** — `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`
+**Rentals** — `GET /api/rentals`, `GET /api/rentals/{id}`, `POST /api/rentals` (multipart), `PUT /api/rentals/{id}`
+**Messages** — `POST /api/messages`
+**Users** — `GET /api/user/{id}`
+
+Public routes (no JWT required): `/api/auth/login`, `/api/auth/register`, `/v3/api-docs/**`, `/swagger-ui/**`.
+All other routes require a `Bearer <token>` header.
+
+> **Current state:** controllers and services are stubbed — methods return `null`. Implementation is in progress.
+
+### Authentication flow
+
+1. Client calls `/api/auth/login` or `/api/auth/register` → receives `{ "token": "..." }`
+2. Client includes `Authorization: Bearer <token>` on every subsequent request
+3. `JwtAuthenticationFilter` (runs before every request) extracts the token, validates it via `JwtService`, and populates `SecurityContextHolder`
+4. Controllers receive the authenticated user via `Authentication authentication` parameter; `authentication.getName()` returns the email
+
+JWT is signed with HS256. Secret comes from `JWT_SECRET` env var (min 64 chars). Expiration: 86400000 ms (24h), configured in `application.properties`.
+
+### Coding conventions
+
+**JSON serialization (Jackson)**
+- Property names: `snake_case` (`spring.jackson.property-naming-strategy=SNAKE_CASE`)
+- Dates: ISO 8601 with UTC timezone suffix — e.g. `"2024-01-15T10:30:00Z"` (`write-dates-as-timestamps=false`)
+- Always use `Instant` (never `LocalDateTime`) for date/time fields in entities and DTOs
+
+**Entities**
+- Lombok: `@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder` — never `@Data` on JPA entities (breaks Hibernate proxies)
+- Timestamps: `@CreationTimestamp` / `@UpdateTimestamp` + `Instant` fields — Hibernate fills them automatically, no manual assignment needed
+- Passwords are always stored as BCrypt hashes; never include the `password` field in any DTO response
+
+**DTOs**
+- Lombok: `@Data @AllArgsConstructor @NoArgsConstructor` is acceptable (plain POJOs, not JPA entities)
+- Validation: use `@NotBlank`, `@NotNull`, `@Email` on request DTOs; controllers call `@Valid`
+- Timestamps in response DTOs: `Instant` field type
+
+**Services**
+- Injected via constructor (no `@Autowired` on fields)
+- `authentication.getName()` in controllers gives the current user's email; pass it to service methods
+
+**Error handling**
+`GlobalExceptionHandler` maps exceptions to HTTP status codes:
+- `UsernameNotFoundException` → 401
+- `AccessDeniedException` → 403
+- `MethodArgumentNotValidException` → 400
+- `Exception` (catch-all) → 500 (logged)
+Response bodies for errors are empty (no JSON body).
+
+### File uploads
+
+Rental pictures are saved to disk under `UPLOAD_DIR`. The `Rental.picture` field stores the full public URL (e.g. `http://localhost:3001/uploads/abc.jpg`), not a file path. URL is constructed by `RentalService` after saving the file.
