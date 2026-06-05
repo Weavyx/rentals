@@ -26,6 +26,20 @@ docker-compose down
 
 On Windows, use `mvnw` instead of `./mvnw`.
 
+**Java version : 17** (`pom.xml` : `<java.version>17</java.version>`)
+
+> **Problème connu — conflit JDK sur Windows :**
+> Le système a JDK 25 (Eclipse Adoptium) installé. IntelliJ IDEA bascule automatiquement
+> sur Java 25 à chaque redémarrage. Pour forcer Java 17 dans le terminal PowerShell :
+>
+> ```powershell
+> $env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17.0.17.10-hotspot"
+> .\mvnw compile   # ou spring-boot:run, test, etc.
+> ```
+>
+> Dans IntelliJ : `File → Project Structure → Project → SDK` → sélectionner **Java 17**.
+> Pour éviter la régression : `File → New Projects Setup → Structure for New Projects → SDK` → **Java 17**.
+
 ## Environment Setup
 
 Copy `.env.example` to `.env` and fill in the values before starting:
@@ -74,7 +88,7 @@ com.openclassrooms.rentals/
 Public routes (no JWT required): `/api/auth/login`, `/api/auth/register`, `/v3/api-docs/**`, `/swagger-ui/**`.
 All other routes require a `Bearer <token>` header.
 
-> **Current state:** controllers and services are stubbed — methods return `null`. Implementation is in progress.
+> **Current state:** Auth endpoints (`/register`, `/login`, `/me`) sont implémentés. Stubs restants : `RentalController`, `RentalService`, `MessageService`.
 
 ### Authentication flow
 
@@ -111,6 +125,7 @@ JWT is signed with HS256. Secret comes from `JWT_SECRET` env var (min 64 chars).
 - `UsernameNotFoundException` → 401
 - `AccessDeniedException` → 403
 - `MethodArgumentNotValidException` → 400
+- `RuntimeException` → 400 (ex. email déjà utilisé à l'inscription)
 - `Exception` (catch-all) → 500 (logged)
 Response bodies for errors are empty (no JSON body).
 
