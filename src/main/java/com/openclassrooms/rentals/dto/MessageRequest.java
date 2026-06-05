@@ -14,6 +14,9 @@ public class MessageRequest {
     @NotNull
     private Long rentalId;
 
+    @NotNull
+    private Long userId;
+
     @NotBlank
     private String message;
 }
