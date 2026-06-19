@@ -37,7 +37,7 @@ public class MessageService {
         }
 
         Rental rental = rentalRepository.findById(request.getRentalId())
-                .orElseThrow(() -> new RuntimeException("Rental not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Rental not found"));
 
         Message message = Message.builder()
                 .user(authenticatedUser)
