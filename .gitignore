@@ -23,3 +23,6 @@ Thumbs.db
 # Logs
 *.log
 logs/
+.claude/
+
+schema_chatop.sql
