@@ -1,5 +1,6 @@
 package com.openclassrooms.rentals.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,7 +17,10 @@ public class RentalResponse {
     private Double price;
     private String picture;
     private String description;
+    @JsonProperty("owner_id")
     private Long ownerId;
+    @JsonProperty("created_at")
     private Instant createdAt;
+    @JsonProperty("updated_at")
     private Instant updatedAt;
 }
