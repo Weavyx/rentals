@@ -24,3 +24,5 @@ Thumbs.db
 *.log
 logs/
 .claude/
+
+schema_chatop.sql
