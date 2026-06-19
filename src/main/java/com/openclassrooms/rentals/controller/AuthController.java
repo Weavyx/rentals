@@ -8,6 +8,7 @@ import com.openclassrooms.rentals.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ public class AuthController {
         this.authService = authService;
     }
 
+    @SecurityRequirements
     @Operation(summary = "Créer un compte", description = "Inscription d'un nouvel utilisateur. Retourne un token JWT.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Compte créé, token retourné"),
@@ -35,6 +37,7 @@ public class AuthController {
         return ResponseEntity.ok(authService.register(request));
     }
 
+    @SecurityRequirements
     @Operation(summary = "Se connecter", description = "Authentification par email et mot de passe. Retourne un token JWT.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Authentification réussie"),
